@@ -1,0 +1,40 @@
+# Cryostat Gamma from Cobalt
+
+/control/verbose  0
+/run/verbose      0		
+/event/verbose    0
+/tracking/verbose 0
+
+/run/random/setRandomSeed 12345
+
+/gps/pos/type    Volume
+/gps/pos/shape   Sphere
+/gps/pos/centre  16. 0. 0. cm
+/gps/pos/radius  1 cm
+/gps/pos/confine SourceCore
+/gps/ang/type   iso
+
+#/gps/pos/type    Point
+#/gps/particle mu-  
+#/gps/position 0 0 0
+#/gps/direction 1 0 0
+#/gps/energy 10 GeV
+
+#/gps/particle gamma
+#/gps/position 0 0 0
+#/gps/direction 1 0 0
+#/gps/energy 511 keV
+
+/grdm/BRbias 0
+/grdm/fBeta 0
+/grdm/verbose 0
+/grdm/analogueMC 1
+
+
+#
+#/gps/position 0 0 0
+/gps/energy 0. eV
+# 60Co
+#/gps/ion 27 60
+# 22Na
+/gps/ion 11 22

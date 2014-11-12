@@ -1,0 +1,18 @@
+#
+# GEANT4 - G4simu pre_init macro
+#
+# A.P. Colijn 08-03-2012
+# selection of cryostat material
+
+# physics list to select
+#/run/physics/setEMlowEnergyModel emlivermore
+/run/physics/setEMlowEnergyModel empenelope
+#/run/physics/setHadronicModel    G4QGSP_BERT_HP
+/run/physics/setHadronicModel    G4QGSP_BERT
+/run/physics/setCerenkov         false
+
+# do we like to have the physics histograms or not?
+/run/physics/setHistograms true
+
+# where to put the source
+/G4simu/detector/setSourcePos 16 cm
