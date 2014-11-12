@@ -26,6 +26,14 @@
 
 void usage();
 
+/* 
+ * Main: G4simu
+ * 
+ * Goal: simulation of XAMS setup
+ *
+ * A.P. Colijn - nov 2014 
+ */
+
 int
 main(int argc, char **argv)
 {
