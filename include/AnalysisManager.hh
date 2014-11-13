@@ -45,7 +45,6 @@ private:
     vector<G4int> m_CollectionIDs;
     
     G4String m_hDataFilename;
-    G4String m_hTreeType;
     G4int m_iNbEventsToSimulate;
     
     TFile      *m_pTreeFile;
@@ -63,6 +62,10 @@ private:
     
     G4Timer *runTime;
     G4bool            writeEmptyEvents;
+    
+    AnalysisMessenger *m_pAnalysisMessenger;
+    G4String m_hTreeType;
+
 };
 
 #endif 

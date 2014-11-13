@@ -27,7 +27,7 @@ AnalysisMessenger::AnalysisMessenger(AnalysisManager *pAnalysis)
 	m_pAnalysisDir->SetGuidance("detector control.");
 
 	m_pTreeTypeCmd = new G4UIcmdWithAString("/G4simu/analysis/setTreeType", this);
-	m_pTreeTypeCmd->SetGuidance("Set output tree type: <raw> <compressed>");
+	m_pTreeTypeCmd->SetGuidance("Set output tree type: <raw> <compact>");
 	m_pTreeTypeCmd->AvailableForStates(G4State_PreInit);
 	m_pTreeTypeCmd->SetDefaultValue(0);
 

@@ -23,12 +23,16 @@
 #include "PrimaryGeneratorAction.hh"
 #include "EventData.hh"
 
+#include "AnalysisMessenger.hh"
 #include "AnalysisManager.hh"
 
 using namespace CLHEP;
 
 AnalysisManager::AnalysisManager(PrimaryGeneratorAction *pPrimaryGeneratorAction)
 {
+    m_pAnalysisMessenger = new AnalysisMessenger(this);
+    m_hTreeType = "raw";
+    
     runTime = new G4Timer();
     m_CollectionIDs.clear();
     
@@ -172,32 +176,43 @@ AnalysisManager::EndOfEvent(const G4Event *pEvent)
                 G4float fTotalEnergyDeposited = 0.;
                 if(iNbHits) {
                     // hits
-                    for(G4int i=0; i<iNbHits; i++) {
-                        stdHit *pHit = (*pHitsCollection)[i];
-                        
-                        if(pHit->GetParticleType() != "opticalphoton"){
-                            m_pEventData->m_pTrackId->push_back(pHit->GetTrackId());
-                            m_pEventData->m_pParentId->push_back(pHit->GetParentId());
-                            m_pEventData->m_pCollectionId->push_back(icol);
+                    if (m_hTreeType == "raw"){
+                        // write all the GEANT4 steps and hits to the output tree
+                        for(G4int i=0; i<iNbHits; i++) {
+                            stdHit *pHit = (*pHitsCollection)[i];
+                            if(pHit->GetParticleType() != "opticalphoton"){
+                                m_pEventData->m_pTrackId->push_back(pHit->GetTrackId());
+                                m_pEventData->m_pParentId->push_back(pHit->GetParentId());
+                                m_pEventData->m_pCollectionId->push_back(icol);
+                                
+                                m_pEventData->m_pParticleType->push_back(pHit->GetParticleType());
+                                m_pEventData->m_pParentType->push_back(pHit->GetParentType());
+                                m_pEventData->m_pCreatorProcess->push_back(pHit->GetCreatorProcess());
+                                m_pEventData->m_pDepositingProcess->push_back(pHit->GetDepositingProcess());
+                                
+                                m_pEventData->m_pX->push_back(pHit->GetPosition().x()/mm);
+                                m_pEventData->m_pY->push_back(pHit->GetPosition().y()/mm);
+                                m_pEventData->m_pZ->push_back(pHit->GetPosition().z()/mm);
+                                
+                                fTotalEnergyDeposited += pHit->GetEnergyDeposited()/keV;
+                                m_pEventData->m_pEnergyDeposited->push_back(pHit->GetEnergyDeposited()/keV);
+                                
+                                m_pEventData->m_pKineticEnergy->push_back(pHit->GetKineticEnergy()/keV);
+                                m_pEventData->m_pTime->push_back(pHit->GetTime()/second);
+                                
+                                iNbSteps++;
+                            } // if !opticalphoton
+                        }
+                    } else if (m_hTreeType == "compact"){
                             
-                            m_pEventData->m_pParticleType->push_back(pHit->GetParticleType());
-                            m_pEventData->m_pParentType->push_back(pHit->GetParentType());
-                            m_pEventData->m_pCreatorProcess->push_back(pHit->GetCreatorProcess());
-                            m_pEventData->m_pDepositingProcess->push_back(pHit->GetDepositingProcess());
+                        //for(G4int i=0; i<iNbHits; i++) {
+                        //    stdHit *pHit = (*pHitsCollection)[i];
+                        //}
                             
-                            m_pEventData->m_pX->push_back(pHit->GetPosition().x()/mm);
-                            m_pEventData->m_pY->push_back(pHit->GetPosition().y()/mm);
-                            m_pEventData->m_pZ->push_back(pHit->GetPosition().z()/mm);
-                            
-                            fTotalEnergyDeposited += pHit->GetEnergyDeposited()/keV;
-                            m_pEventData->m_pEnergyDeposited->push_back(pHit->GetEnergyDeposited()/keV);
-                            
-                            m_pEventData->m_pKineticEnergy->push_back(pHit->GetKineticEnergy()/keV);
-                            m_pEventData->m_pTime->push_back(pHit->GetTime()/second);
-                            
-                            iNbSteps++;
-                        } // if !opticalphoton
-                    } // loop over hits 
+                    } else {
+                            G4cout <<"AnalysisManager::EndOfEvent ERROR: wrong Tree type selected"<<G4endl;
+                            return;
+                    } // if m_hTreeType
                 } // if Hits
                 m_pEventData->m_pEtot->push_back(fTotalEnergyDeposited);
                 fEtot += fTotalEnergyDeposited;
@@ -213,7 +228,7 @@ AnalysisManager::EndOfEvent(const G4Event *pEvent)
     // save only energy depositing events
     m_pTree->Fill(); // write all events to the tree
     
-    m_pEventData->Clear(); 
+    m_pEventData->Clear();
     m_pTreeFile->cd();
     
     //  delete pHitsCollection;
