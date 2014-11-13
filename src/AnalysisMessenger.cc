@@ -26,7 +26,7 @@ AnalysisMessenger::AnalysisMessenger(AnalysisManager *pAnalysis)
 	m_pAnalysisDir = new G4UIdirectory("/G4simu/analysis/");
 	m_pAnalysisDir->SetGuidance("detector control.");
 
-	m_pTreeTypeCmd = new G4UIcmdWithADoubleAndUnit("/G4simu/analysis/setTreeType", this);
+	m_pTreeTypeCmd = new G4UIcmdWithAString("/G4simu/analysis/setTreeType", this);
 	m_pTreeTypeCmd->SetGuidance("Set output tree type: <raw> <compressed>");
 	m_pTreeTypeCmd->AvailableForStates(G4State_PreInit);
 	m_pTreeTypeCmd->SetDefaultValue(0);
@@ -41,6 +41,5 @@ AnalysisMessenger::~AnalysisMessenger()
 void AnalysisMessenger::SetNewValue(G4UIcommand *pUIcommand, G4String hNewValue)
 {
         // source position
-	if(pUIcommand == m_pTreeTypeCmd)
-			m_pAnalysis->SetTreeType(hNewValue));
+	if(pUIcommand == m_pTreeTypeCmd) m_pAnalysis->SetTreeType(hNewValue);
 }
