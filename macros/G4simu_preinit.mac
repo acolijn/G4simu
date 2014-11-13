@@ -5,8 +5,8 @@
 # selection of cryostat material
 
 # physics list to select
-#/run/physics/setEMlowEnergyModel emlivermore
-/run/physics/setEMlowEnergyModel empenelope
+/run/physics/setEMlowEnergyModel emlivermore
+# /run/physics/setEMlowEnergyModel empenelope
 #/run/physics/setHadronicModel    G4QGSP_BERT_HP
 /run/physics/setHadronicModel    G4QGSP_BERT
 /run/physics/setCerenkov         false
