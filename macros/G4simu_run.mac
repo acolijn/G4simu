@@ -12,7 +12,7 @@
 /gps/pos/centre  16. 0. 0. cm
 /gps/pos/radius  1 cm
 /gps/pos/confine SourceCore
-/gps/ang/type   iso
+# /gps/ang/type   iso
 
 #/gps/pos/type    Point
 #/gps/particle mu-  
