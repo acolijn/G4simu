@@ -91,63 +91,7 @@ PhysicsList::~PhysicsList()
 void
 PhysicsList::ConstructParticle()
 {
-    
-    //if        (m_hHadronicModel == "custom"){
-    // // ConstructMyBosons();
-    // // ConstructMyLeptons();
-    // // ConstructMyHadrons();
-    //} else if (m_hHadronicModel == "G4QGSP_BERT_HP") {
     particleList->ConstructParticle();
-    //}
-}
-
-//__________________________________________________________________________________________________________
-
-void
-PhysicsList::ConstructMyBosons()
-{
-    G4Geantino::GeantinoDefinition();
-    G4ChargedGeantino::ChargedGeantinoDefinition();
-    
-    G4Gamma::GammaDefinition();
-    
-    G4OpticalPhoton::OpticalPhotonDefinition();
-}
-
-//__________________________________________________________________________________________________________
-
-void
-PhysicsList::ConstructMyLeptons()
-{
-    G4Electron::ElectronDefinition();
-    G4Positron::PositronDefinition();
-    G4MuonPlus::MuonPlusDefinition();
-    G4MuonMinus::MuonMinusDefinition();
-    
-    G4NeutrinoE::NeutrinoEDefinition();
-    G4AntiNeutrinoE::AntiNeutrinoEDefinition();
-    G4NeutrinoMu::NeutrinoMuDefinition();
-    G4AntiNeutrinoMu::AntiNeutrinoMuDefinition();
-}
-
-//__________________________________________________________________________________________________________
-
-#include "G4MesonConstructor.hh"
-#include "G4BaryonConstructor.hh"
-#include "G4IonConstructor.hh"
-
-void
-PhysicsList::ConstructMyHadrons()
-{
-    G4MesonConstructor mConstructor;
-    mConstructor.ConstructParticle();
-    
-    G4BaryonConstructor bConstructor;
-    bConstructor.ConstructParticle();
-    
-    G4IonConstructor iConstructor;
-    iConstructor.ConstructParticle();
-    
 }
 
 //__________________________________________________________________________________________________________

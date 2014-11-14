@@ -55,10 +55,6 @@ private:
     G4double cutForAlpha;
     G4double cutForGenericIon;
     
-    void ConstructMyBosons();
-    void ConstructMyLeptons();
-    void ConstructMyHadrons();
-    
 private:
     G4int VerboseLevel;
     G4int OpVerbLevel;
