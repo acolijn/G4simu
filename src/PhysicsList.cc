@@ -86,9 +86,9 @@ PhysicsList::ConstructParticle()
 {
   
   //if        (m_hHadronicModel == "custom"){
-  ConstructMyBosons();
-  ConstructMyLeptons();
-  ConstructMyHadrons();
+  // // ConstructMyBosons();
+  // // ConstructMyLeptons();
+  // // ConstructMyHadrons();
   //} else if (m_hHadronicModel == "G4QGSP_BERT_HP") {
   particleList->ConstructParticle();
   //}
@@ -175,7 +175,7 @@ PhysicsList::ConstructProcess()
   
   
   // construct optical physics...... is there a G4 standard for this one as well?
-  ConstructOp();
+// // //  ConstructOp();
   
   //
   // construct the Hadronic physics models

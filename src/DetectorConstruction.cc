@@ -117,8 +117,8 @@ DetectorConstruction::DefineMaterials()
 	//================================== materials ================================== 
   
 	//------------------------------------- air -------------------------------------
-	pNistManager->FindOrBuildMaterial("G4_AIR");
-	G4Material *Air = G4Material::GetMaterial("G4_AIR"); // moved here by Serena
+  	G4Material *Air = pNistManager->FindOrBuildMaterial("G4_AIR");
+	//G4Material *Air = G4Material::GetMaterial("G4_AIR"); 
   
   
 	//----------------------------------- vacuum ------------------------------------
@@ -313,6 +313,7 @@ DetectorConstruction::ConstructLaboratory()
 	//================================== Laboratory =================================
 	const G4double dLabHalfSize = 0.5*GetGeometryParameter("LabSize");
   
+	//G4Material *Air = G4Material::GetMaterial("G4_AIR");
 	G4Material *Air = G4Material::GetMaterial("G4_AIR");
   
 	G4Box *pLabBox         = new G4Box("LabBox", dLabHalfSize, dLabHalfSize, dLabHalfSize);
@@ -432,7 +433,7 @@ DetectorConstruction::ConstructCollimatorSystem()
         const G4double dCrystalHalfZ  = 0.5*GetGeometryParameter("NaI_crystal_Z");
   
 	G4Material *NaI = G4Material::GetMaterial("NaI");
-	G4Material *Air = G4Material::GetMaterial("Air");
+	G4Material *Air = G4Material::GetMaterial("G4_AIR");
 	G4Material *PE = G4Material::GetMaterial("PE");
   
         G4cout << "NaI:: R   ="<<dCrystalRadius/cm<<G4endl;
@@ -444,7 +445,7 @@ DetectorConstruction::ConstructCollimatorSystem()
         // make and place one NaI crystal
 	G4Tubs *pNaI_crystal          = new G4Tubs("NaI_crystal1", 0.*cm, dCrystalRadius, dCrystalHalfZ, 0.*deg, 360.*deg);
 	m_pNaI_crystal_LogicalVolume  = new G4LogicalVolume(pNaI_crystal, NaI, "NaI_crystalTUBS", 0, 0, 0);
-	m_pNaI_crystal_PhysicalVolume = new G4PVPlacement(pRot, G4ThreeVector(20*cm,0,0), m_pNaI_crystal_LogicalVolume, 
+	m_pNaI_crystal_PhysicalVolume = new G4PVPlacement(pRot, G4ThreeVector(25*cm,0,0), m_pNaI_crystal_LogicalVolume, 
 								"NaI_crystal", m_pMotherLogicalVolume, false, 0);
 
         // make and place the source
