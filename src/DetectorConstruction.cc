@@ -280,8 +280,8 @@ DetectorConstruction::DefineGeometryParameters()
 	//================================== Laboratory =================================
 	m_hGeometryParameters["LabSize"]			= 1.*m;
 	//================================== NaI crystal ================================
-	m_hGeometryParameters["NaI_crystal_R"]			= 2.5*cm;
-	m_hGeometryParameters["NaI_crystal_Z"]			= 5.0*cm;
+	m_hGeometryParameters["NaI_crystal_R"]			= 10*cm;
+	m_hGeometryParameters["NaI_crystal_Z"]			= 10.0*cm;
 	//================================== Disk source ================================
 	m_hGeometryParameters["SourceDisk_R"]			= 1.5*cm;
 	m_hGeometryParameters["SourceDisk_Z"]			= 5.0*mm;
@@ -444,7 +444,7 @@ DetectorConstruction::ConstructCollimatorSystem()
         // make and place one NaI crystal
 	G4Tubs *pNaI_crystal          = new G4Tubs("NaI_crystal1", 0.*cm, dCrystalRadius, dCrystalHalfZ, 0.*deg, 360.*deg);
 	m_pNaI_crystal_LogicalVolume  = new G4LogicalVolume(pNaI_crystal, NaI, "NaI_crystalTUBS", 0, 0, 0);
-	m_pNaI_crystal_PhysicalVolume = new G4PVPlacement(pRot, G4ThreeVector(25*cm,0,0), m_pNaI_crystal_LogicalVolume, 
+	m_pNaI_crystal_PhysicalVolume = new G4PVPlacement(pRot, G4ThreeVector(20*cm,0,0), m_pNaI_crystal_LogicalVolume, 
 								"NaI_crystal", m_pMotherLogicalVolume, false, 0);
 
         // make and place the source

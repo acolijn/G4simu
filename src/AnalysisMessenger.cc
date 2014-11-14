@@ -29,7 +29,7 @@ AnalysisMessenger::AnalysisMessenger(AnalysisManager *pAnalysis)
 	m_pTreeTypeCmd = new G4UIcmdWithAString("/G4simu/analysis/setTreeType", this);
 	m_pTreeTypeCmd->SetGuidance("Set output tree type: <raw> <compact>");
 	m_pTreeTypeCmd->AvailableForStates(G4State_PreInit);
-	m_pTreeTypeCmd->SetDefaultValue(0);
+	m_pTreeTypeCmd->SetDefaultValue("raw");
 
 }
 

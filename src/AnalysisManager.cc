@@ -49,6 +49,7 @@ AnalysisManager::AnalysisManager(PrimaryGeneratorAction *pPrimaryGeneratorAction
 
 AnalysisManager::~AnalysisManager()
 {
+    delete m_pAnalysisMessenger;
 }
 
 void
