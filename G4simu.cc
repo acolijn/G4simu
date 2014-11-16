@@ -53,7 +53,7 @@ main(int argc, char **argv)
   std::string hCommand;
   int iNbEventsToSimulate = 0;
   
-  // parse switches
+  // parse switches ... 
   while((c = getopt(argc,argv,"v:f:o:p:n:i")) != -1){
     switch(c)	{
         
