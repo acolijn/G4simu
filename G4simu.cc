@@ -20,8 +20,6 @@
 
 #include "fileMerger.hh"
 
-#include "stdHit.hh"
-
 // SVN
 
 void usage();
