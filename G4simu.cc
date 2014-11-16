@@ -31,7 +31,7 @@ void usage();
  *   
  * Goal: simulation of XAMS setup
  *
- * A.P. Colijn - nov 2014 
+ * A.P. Colijn -- nov 2014 --
  */
 
 int
@@ -95,8 +95,6 @@ main(int argc, char **argv)
         usage();
     }
   }
-
-  stdHit *pHit = new stdHit();
   
   // 
   if(hDataFilename.empty()) hDataFilename = "events.root";
