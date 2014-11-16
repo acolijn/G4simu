@@ -77,27 +77,34 @@ AnalysisManager::BeginOfRun(const G4Run *)
     
     m_pTree->Branch("etot", &m_pEventData->m_fTotalEnergyDeposited, "etot/F");
     m_pTree->Branch("nsteps", &m_pEventData->m_iNbSteps, "nsteps/I");
-    
-    m_pTree->Branch("trackid", "vector<int>", &m_pEventData->m_pTrackId);
-    m_pTree->Branch("type", "vector<string>", &m_pEventData->m_pParticleType);
-    m_pTree->Branch("parentid", "vector<int>", &m_pEventData->m_pParentId);
-    m_pTree->Branch("collid", "vector<int>", &m_pEventData->m_pCollectionId);
-    m_pTree->Branch("parenttype", "vector<string>", &m_pEventData->m_pParentType);
-    m_pTree->Branch("creaproc", "vector<string>", &m_pEventData->m_pCreatorProcess);
-    m_pTree->Branch("edproc", "vector<string>", &m_pEventData->m_pDepositingProcess);
-    m_pTree->Branch("etot_det", "vector<float>", &m_pEventData->m_pEtot);
-    m_pTree->Branch("xp", "vector<float>", &m_pEventData->m_pX);
-    m_pTree->Branch("yp", "vector<float>", &m_pEventData->m_pY);
-    m_pTree->Branch("zp", "vector<float>", &m_pEventData->m_pZ);
-    m_pTree->Branch("ed", "vector<float>", &m_pEventData->m_pEnergyDeposited);
-    m_pTree->Branch("time", "vector<float>", &m_pEventData->m_pTime);
-    
     m_pTree->Branch("type_pri", "vector<string>", &m_pEventData->m_pPrimaryParticleType);
     m_pTree->Branch("xp_pri", &m_pEventData->m_fPrimaryX, "xp_pri/F");
     m_pTree->Branch("yp_pri", &m_pEventData->m_fPrimaryY, "yp_pri/F");
     m_pTree->Branch("zp_pri", &m_pEventData->m_fPrimaryZ, "zp_pri/F");
     m_pTree->Branch("e_pri",  &m_pEventData->m_fPrimaryE, "e_pri/F");
     m_pTree->Branch("w_pri",  &m_pEventData->m_fPrimaryW, "w_pri/F");
+    
+    if(m_hTreeType == "raw"){ // all hits
+        m_pTree->Branch("trackid", "vector<int>", &m_pEventData->m_pTrackId);
+        m_pTree->Branch("type", "vector<string>", &m_pEventData->m_pParticleType);
+        m_pTree->Branch("parentid", "vector<int>", &m_pEventData->m_pParentId);
+        m_pTree->Branch("collid", "vector<int>", &m_pEventData->m_pCollectionId);
+        m_pTree->Branch("parenttype", "vector<string>", &m_pEventData->m_pParentType);
+        m_pTree->Branch("creaproc", "vector<string>", &m_pEventData->m_pCreatorProcess);
+        m_pTree->Branch("edproc", "vector<string>", &m_pEventData->m_pDepositingProcess);
+        m_pTree->Branch("xp", "vector<float>", &m_pEventData->m_pX);
+        m_pTree->Branch("yp", "vector<float>", &m_pEventData->m_pY);
+        m_pTree->Branch("zp", "vector<float>", &m_pEventData->m_pZ);
+        m_pTree->Branch("ed", "vector<float>", &m_pEventData->m_pEnergyDeposited);
+        m_pTree->Branch("time", "vector<float>", &m_pEventData->m_pTime);
+    } else if (m_hTreeType == "compact"){ // only average per detector
+        m_pTree->Branch("xp", "vector<float>", &m_pEventData->m_pX);
+        m_pTree->Branch("yp", "vector<float>", &m_pEventData->m_pY);
+        m_pTree->Branch("zp", "vector<float>", &m_pEventData->m_pZ);
+        m_pTree->Branch("ed", "vector<float>", &m_pEventData->m_pEnergyDeposited);
+        m_pTree->Branch("time", "vector<float>", &m_pEventData->m_pTime);
+    }
+    
     
     m_pNbEventsToSimulateParameter = new TParameter<int>("nbevents", m_iNbEventsToSimulate);
     m_pNbEventsToSimulateParameter->Write();
@@ -158,7 +165,7 @@ AnalysisManager::EndOfEvent(const G4Event *pEvent)
     // uppack teh hit collections
     G4int    iNbHits = 0;
     G4int    iNbSteps = 0;
-    G4double fEtot = 0;
+    G4double fTotalEnergyDeposited = 0;
     
     if(pHCofThisEvent) {
         //
@@ -205,26 +212,53 @@ AnalysisManager::EndOfEvent(const G4Event *pEvent)
                             } // if !opticalphoton
                         }
                     } else if (m_hTreeType == "compact"){
-                            
-                        //for(G4int i=0; i<iNbHits; i++) {
-                        //    stdHit *pHit = (*pHitsCollection)[i];
-                        //}
-                            
+                        //
+                        // calculate the average position of a hit in each detector
+                        //
+                        G4double xx=0;
+                        G4double yy=0;
+                        G4double zz=0;
+                        G4double ee=0;
+                        G4double tt=0;
+                        
+                        for(G4int i=0; i<iNbHits; i++) {
+                            stdHit *pHit = (*pHitsCollection)[i];
+                            G4double ed = pHit->GetEnergyDeposited()/keV;
+                            xx += pHit->GetPosition().x()/mm * ed;
+                            yy += pHit->GetPosition().y()/mm * ed;
+                            zz += pHit->GetPosition().z()/mm * ed;
+                            tt += pHit->GetTime()/second *ed;
+                            ee += ed;
+                        }
+                        if(ee!=0){
+                            xx /= ee;
+                            yy /= ee;
+                            zz /= ee;
+                            tt /= ee;
+                        }
+                        // fill the tree variables
+                        
+  
+                        m_pEventData->m_pEnergyDeposited->push_back(ee);
+                        m_pEventData->m_pX->push_back(xx);
+                        m_pEventData->m_pY->push_back(yy);
+                        m_pEventData->m_pZ->push_back(zz);
+                        m_pEventData->m_pTime->push_back(tt);
+
+                        fTotalEnergyDeposited += ee;
+                                                
                     } else {
-                            G4cout <<"AnalysisManager::EndOfEvent ERROR: wrong Tree type selected"<<G4endl;
-                            return;
+                        G4cout <<"AnalysisManager::EndOfEvent ERROR: wrong Tree type selected"<<G4endl;
+                        return;
                     } // if m_hTreeType
                 } // if Hits
-                m_pEventData->m_pEtot->push_back(fTotalEnergyDeposited);
-                fEtot += fTotalEnergyDeposited;
-                
             }
         }
     }
     
     // also write the header information + primary vertex of the empty events....
     m_pEventData->m_iNbSteps = iNbSteps;
-    m_pEventData->m_fTotalEnergyDeposited = fEtot;
+    m_pEventData->m_fTotalEnergyDeposited = fTotalEnergyDeposited;
     
     // save only energy depositing events
     m_pTree->Fill(); // write all events to the tree

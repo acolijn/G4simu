@@ -41,9 +41,6 @@ main(int argc, char **argv)
   std::stringstream hStream;
 	
   bool bInteractive = false;
-  bool bVisualize = false;
-  bool bVrmlVisualize = false;
-  bool bOpenGlVisualize = false;
   bool bPreInitFromFile = false;
 	
   bool bMacroFile = false;
@@ -52,19 +49,8 @@ main(int argc, char **argv)
   int iNbEventsToSimulate = 0;
   
   // parse switches ... 
-  while((c = getopt(argc,argv,"v:f:o:p:n:i")) != -1){
+  while((c = getopt(argc,argv,"f:o:p:n:i")) != -1){
     switch(c)	{
-        
-      case 'v': 
-        bVisualize = true;
-        hStream.str(optarg);
-        if(hStream.str() == "vrml")
-          bVrmlVisualize = true;
-        else if(hStream.str() == "opengl")
-          bOpenGlVisualize = true;
-        hStream.clear();
-        break;
-        
       case 'f':
         bMacroFile = true;
         hMacroFilename = optarg;
@@ -146,21 +132,6 @@ main(int argc, char **argv)
   G4UIsession * pUIsession = 0;
   if(bInteractive) pUIsession = new G4UIterminal(new G4UItcsh);
   
-  if(bVisualize)
-  {
-    pUImanager->ApplyCommand("/vis/scene/create");
-    if(bVrmlVisualize)
-      pUImanager->ApplyCommand("/vis/open VRML2FILE");
-    if(bOpenGlVisualize)
-      pUImanager->ApplyCommand("/vis/open OGLIX");
-		
-    pUImanager->ApplyCommand("/vis/viewer/set/viewpointThetaPhi 90 0 deg");
-    pUImanager->ApplyCommand("/vis/viewer/set/upVector 0 0 1");
-    pUImanager->ApplyCommand("/vis/viewer/zoom 1.0");
-    pUImanager->ApplyCommand("/tracking/storeTrajectory 1");
-    pUImanager->ApplyCommand("/vis/scene/add/trajectories");
-  }
-  
   // run time parameter settings
   if(bMacroFile)
   {
@@ -184,7 +155,6 @@ main(int argc, char **argv)
   }
   
   delete pAnalysisManager;
-  if(bVisualize) delete pVisManager;
   delete pRunManager;
   
   // merge the output files to one .... events.root

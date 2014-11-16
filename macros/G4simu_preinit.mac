@@ -16,3 +16,6 @@
 
 # where to put the source
 /G4simu/detector/setSourcePos 16 cm
+
+# format of the output ntuple
+/G4simu/analysis/setTreeType compact
