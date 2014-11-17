@@ -9,7 +9,6 @@
 #include <G4NistManager.hh>
 #include <G4ElementTable.hh>
 #include <G4Version.hh>
-//#include <G4Element.hh>
 #include <numeric>
 
 #include <TROOT.h>
@@ -44,7 +43,7 @@ AnalysisManager::AnalysisManager(PrimaryGeneratorAction *pPrimaryGeneratorAction
     
     m_pEventData = new EventData();
     //plotPhysics      = kTRUE;
-    writeEmptyEvents = kTRUE;
+    // writeEmptyEvents = kTRUE;
 }
 
 AnalysisManager::~AnalysisManager()
@@ -58,7 +57,7 @@ AnalysisManager::BeginOfRun(const G4Run *)
     // start a timer for this run....
     runTime->Start();
     // do we write empty events or not?
-    writeEmptyEvents = kTRUE;
+    // writeEmptyEvents = kTRUE;
     
     m_pTreeFile = new TFile(m_hDataFilename.c_str(), "RECREATE");
     // make tree structure
@@ -108,9 +107,8 @@ AnalysisManager::BeginOfRun(const G4Run *)
     
     m_pNbEventsToSimulateParameter = new TParameter<int>("nbevents", m_iNbEventsToSimulate);
     m_pNbEventsToSimulateParameter->Write();
-    
+
     m_pTreeFile->cd();
-    
 }
 
 void
@@ -237,8 +235,6 @@ AnalysisManager::EndOfEvent(const G4Event *pEvent)
                             tt /= ee;
                         }
                         // fill the tree variables
-                        
-  
                         m_pEventData->m_pEnergyDeposited->push_back(ee);
                         m_pEventData->m_pX->push_back(xx);
                         m_pEventData->m_pY->push_back(yy);
