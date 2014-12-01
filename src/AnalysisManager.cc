@@ -97,6 +97,7 @@ AnalysisManager::BeginOfRun(const G4Run *)
         m_pTree->Branch("ed", "vector<float>", &m_pEventData->m_pEnergyDeposited);
         m_pTree->Branch("time", "vector<float>", &m_pEventData->m_pTime);
     } else if (m_hTreeType == "compact"){ // only average per detector
+        m_pTree->Branch("collid", "vector<int>", &m_pEventData->m_pCollectionId);
         m_pTree->Branch("xp", "vector<float>", &m_pEventData->m_pX);
         m_pTree->Branch("yp", "vector<float>", &m_pEventData->m_pY);
         m_pTree->Branch("zp", "vector<float>", &m_pEventData->m_pZ);
@@ -179,7 +180,6 @@ AnalysisManager::EndOfEvent(const G4Event *pEvent)
                 iNbHits = (pHitsCollection)?(pHitsCollection->entries()):(0);
                 G4cout << icol << " Nb hits = " << iNbHits<< " ID = "<<m_CollectionIDs[icol]<<G4endl;
                 
-                G4float fTotalEnergyDeposited = 0.;
                 if(iNbHits) {
                     // hits
                     if (m_hTreeType == "raw"){
@@ -222,6 +222,7 @@ AnalysisManager::EndOfEvent(const G4Event *pEvent)
                         for(G4int i=0; i<iNbHits; i++) {
                             stdHit *pHit = (*pHitsCollection)[i];
                             G4double ed = pHit->GetEnergyDeposited()/keV;
+                            
                             xx += pHit->GetPosition().x()/mm * ed;
                             yy += pHit->GetPosition().y()/mm * ed;
                             zz += pHit->GetPosition().z()/mm * ed;
@@ -235,6 +236,7 @@ AnalysisManager::EndOfEvent(const G4Event *pEvent)
                             tt /= ee;
                         }
                         // fill the tree variables
+                        m_pEventData->m_pCollectionId->push_back(icol);
                         m_pEventData->m_pEnergyDeposited->push_back(ee);
                         m_pEventData->m_pX->push_back(xx);
                         m_pEventData->m_pY->push_back(yy);
