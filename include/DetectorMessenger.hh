@@ -21,16 +21,18 @@ class G4UIcmdWithoutParameter;
 class DetectorMessenger: public G4UImessenger
 {
 public:
-	DetectorMessenger(DetectorConstruction *pDetector);
-	~DetectorMessenger();
-
-	void     SetNewValue(G4UIcommand *pUIcommand, G4String hString);
+    DetectorMessenger(DetectorConstruction *pDetector);
+    ~DetectorMessenger();
+    
+    void     SetNewValue(G4UIcommand *pUIcommand, G4String hString);
 private:
-	DetectorConstruction* m_pDetector;
+    DetectorConstruction* m_pDetector;
+    
+    G4UIdirectory *m_pDetectorDir;
+    
+    G4UIcmdWithADoubleAndUnit *m_pSourcePosCmd;
+    G4UIcmdWithADoubleAndUnit *m_pNaIPosCmd;
 
-	G4UIdirectory *m_pDetectorDir;
-
-        G4UIcmdWithADoubleAndUnit *m_pSourcePosCmd;
 };
 
 #endif

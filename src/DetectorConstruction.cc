@@ -55,6 +55,8 @@ DetectorConstruction::DetectorConstruction(G4String fName)
     m_pDetectorMessenger = new DetectorMessenger(this);
     detRootFile = fName;
     m_hSourcePosition = 15*cm;
+    m_hNaIPosition = 25*cm;
+
 }
 
 DetectorConstruction::~DetectorConstruction()
@@ -278,27 +280,27 @@ void
 DetectorConstruction::DefineGeometryParameters()
 {
     //================================== Laboratory =================================
-    m_hGeometryParameters["LabSize"]			= 1.*m;
+    m_hGeometryParameters["LabSize"] = 1.*m;
     //================================== NaI crystal ================================
-    m_hGeometryParameters["NaI_crystal_R"]			= 2*cm;
-    m_hGeometryParameters["NaI_crystal_Z"]			= 4.0*cm;
+    m_hGeometryParameters["NaI_crystal_R"] = 2*cm;
+    m_hGeometryParameters["NaI_crystal_Z"] = 4.0*cm;
     //================================== Disk source ================================
-    m_hGeometryParameters["SourceDisk_R"]			= 1.5*cm;
-    m_hGeometryParameters["SourceDisk_Z"]			= 5.0*mm;
+    m_hGeometryParameters["SourceDisk_R"] = 1.5*cm;
+    m_hGeometryParameters["SourceDisk_Z"] = 5.0*mm;
     // little sphere in middle of disk
-    m_hGeometryParameters["SourceCore_R"]			= 1.0*mm;
+    m_hGeometryParameters["SourceCore_R"] = 1.0*mm;
     
     //================================== XAMS detector ==============================
-    m_hGeometryParameters["OuterCryostat_Rout"]	        = 125*mm;
-    m_hGeometryParameters["OuterCryostat_dZ"]	        = 250*mm;
-    m_hGeometryParameters["OuterCryostat_Thickness"]        = 3.*mm;
+    m_hGeometryParameters["OuterCryostat_Rout"] = 125*mm;
+    m_hGeometryParameters["OuterCryostat_dZ"] = 250*mm;
+    m_hGeometryParameters["OuterCryostat_Thickness"] = 3.*mm;
     //============
-    m_hGeometryParameters["InnerCryostat_Rout"]	        = 73.97*mm;
-    m_hGeometryParameters["InnerCryostat_dZ"]	        = 200*mm;
-    m_hGeometryParameters["InnerCryostat_Thickness"]        = 3.*mm;
+    m_hGeometryParameters["InnerCryostat_Rout"] = 73.97*mm;
+    m_hGeometryParameters["InnerCryostat_dZ"] = 200*mm;
+    m_hGeometryParameters["InnerCryostat_Thickness"] = 3.*mm;
     //============
-    m_hGeometryParameters["Teflon_Rout"]			= 68.49*mm;
-    m_hGeometryParameters["Teflon_Thickness"]	        = 46.16*mm;
+    m_hGeometryParameters["Teflon_Rout"] = 68.49*mm;
+    m_hGeometryParameters["Teflon_Thickness"] = 46.16*mm;
 }
 
 G4double
@@ -352,8 +354,8 @@ DetectorConstruction::ConstructXAMS()
     
     //================================== NaI crystal =================================
     
-//    const G4double dLXeRadius =     GetGeometryParameter("LXe_R");
-//    const G4double dLXeHalfZ  = 0.5*GetGeometryParameter("LXe_Z");
+    //    const G4double dLXeRadius =     GetGeometryParameter("LXe_R");
+    //    const G4double dLXeHalfZ  = 0.5*GetGeometryParameter("LXe_Z");
     
     
     G4double zmax = 400*mm;
@@ -433,11 +435,9 @@ DetectorConstruction::ConstructCollimatorSystem()
     const G4double dCrystalHalfZ  = 0.5*GetGeometryParameter("NaI_crystal_Z");
     
     G4Material *NaI = G4Material::GetMaterial("NaI");
-//    G4Material *Air = G4Material::GetMaterial("G4_AIR");
+    //    G4Material *Air = G4Material::GetMaterial("G4_AIR");
     G4Material *PE = G4Material::GetMaterial("PE");
-    
-    G4cout << "NaI:: R   ="<<dCrystalRadius/cm<<G4endl;
-    G4cout << "NaI:: Z/2 ="<<dCrystalHalfZ/cm<<G4endl;
+
     // rotation matrix for the NaI crystal
     G4RotationMatrix *pRot = new G4RotationMatrix();
     pRot->rotateY(90.*deg);
@@ -445,7 +445,7 @@ DetectorConstruction::ConstructCollimatorSystem()
     // make and place one NaI crystal
     G4Tubs *pNaI_crystal          = new G4Tubs("NaI_crystal1", 0.*cm, dCrystalRadius, dCrystalHalfZ, 0.*deg, 360.*deg);
     m_pNaI_crystal_LogicalVolume  = new G4LogicalVolume(pNaI_crystal, NaI, "NaI_crystalTUBS", 0, 0, 0);
-    m_pNaI_crystal_PhysicalVolume = new G4PVPlacement(pRot, G4ThreeVector(50*cm,0,0), m_pNaI_crystal_LogicalVolume,
+    m_pNaI_crystal_PhysicalVolume = new G4PVPlacement(pRot, G4ThreeVector(m_hNaIPosition,0,0), m_pNaI_crystal_LogicalVolume,
                                                       "NaI_crystal", m_pMotherLogicalVolume, false, 0);
     
     // make and place the source
@@ -486,21 +486,70 @@ void DetectorConstruction::MakeDetectorPlots()
     _fGeom = new TFile(detRootFile,"RECREATE");
     _detector = _fGeom->mkdir("detector");
     
-    // xenon
-    MakeMaterialPlots();
-    
-    // TPC
-    
-    // Water tank
-    
-    // etc etc
+    // store properties of the materials that are used
+    StoreMaterialParameters();
+    // store geometry parameters
+    StoreGeometryParameters();
     
     _fGeom->Write();
     _fGeom->Close();
     
 }
 
-void DetectorConstruction::MakeMaterialPlots()
+void DetectorConstruction::StoreGeometryParameters()
+{
+    // TDirectory for storage of teh geometry parameters
+    TDirectory *_geometry = _detector->mkdir("geometry");
+    _geometry->cd();
+
+    // XAMS cryostat - outer cryostat vessel
+    TParameter<double> *OuterCryostat_Rout = new TParameter<double>("OuterCryostat_Rout",GetGeometryParameter("OuterCryostat_Rout")/mm);
+    OuterCryostat_Rout->Write();
+    
+    TParameter<double> *OuterCryostat_dZ = new TParameter<double>("OuterCryostat_dZ",GetGeometryParameter("OuterCryostat_dZ")/mm);
+    OuterCryostat_dZ->Write();
+    
+    TParameter<double> *OuterCryostat_Thickness = new TParameter<double>("OuterCryostat_Thickness",GetGeometryParameter("OuterCryostat_Thickness")/mm);
+    OuterCryostat_Thickness->Write();
+    
+    // XAMS cryostat - inner cryostat vessel
+    TParameter<double> *InnerCryostat_Rout = new TParameter<double>("InnerCryostat_Rout",GetGeometryParameter("InnerCryostat_Rout")/mm);
+    InnerCryostat_Rout->Write();
+
+    TParameter<double> *InnerCryostat_dZ = new TParameter<double>("InnerCryostat_dZ",GetGeometryParameter("InnerCryostat_dZ")/mm);
+    InnerCryostat_dZ->Write();
+    
+    TParameter<double> *InnerCryostat_Thickness = new TParameter<double>("InnerCryostat_Thickness",GetGeometryParameter("InnerCryostat_Thickness")/mm);
+    InnerCryostat_Thickness->Write();
+    
+    // XAMS  - inner cryostat vessel
+    TParameter<double> *Teflon_Rout = new TParameter<double>("Teflon_Rout",GetGeometryParameter("Teflon_Rout")/mm);
+    Teflon_Rout->Write();
+    
+    TParameter<double> *Teflon_Thickness = new TParameter<double>("Teflon_Thickness",GetGeometryParameter("Teflon_Thickness")/mm);
+    Teflon_Thickness->Write();
+    
+    // NaI crystal
+    TParameter<double> *NaI_R = new TParameter<double>("NaI_crystal_R",GetGeometryParameter("NaI_crystal_R")/mm);
+    NaI_R->Write();
+    TParameter<double> *NaI_Z = new TParameter<double>("NaI_crystal_Z",GetGeometryParameter("NaI_crystal_Z")/mm);
+    NaI_Z->Write();
+    TParameter<double> *NaI_pos = new TParameter<double>("NaI_crystal_Position",m_hNaIPosition/mm);
+    NaI_pos->Write();
+
+    // Source
+    TParameter<double> *Source_R = new TParameter<double>("SourceDisk_R",GetGeometryParameter("SourceDisk_R")/mm);
+    Source_R->Write();
+    TParameter<double> *Source_Z = new TParameter<double>("SourceDisk_Z",GetGeometryParameter("SourceDisk_Z")/mm);
+    Source_Z->Write();
+    TParameter<double> *Source_pos = new TParameter<double>("SourceDisk_Position",m_hSourcePosition/mm);
+    Source_pos->Write();
+    
+    _fGeom->cd();
+}
+
+
+void DetectorConstruction::StoreMaterialParameters()
 {
     
     // make a list of materials for graphs

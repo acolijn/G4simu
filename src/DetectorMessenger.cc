@@ -29,10 +29,15 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction *pDetector)
 
 	m_pSourcePosCmd = new G4UIcmdWithADoubleAndUnit("/G4simu/detector/setSourcePos", this);
 	m_pSourcePosCmd->SetGuidance("Set source X position");
-//	m_pSourcePosCmd->SetParameterName("sourcePos", false);
 	m_pSourcePosCmd->AvailableForStates(G4State_PreInit);
 	m_pSourcePosCmd->SetDefaultValue(0);
 	m_pSourcePosCmd->SetDefaultUnit("cm");
+    
+    m_pNaIPosCmd = new G4UIcmdWithADoubleAndUnit("/G4simu/detector/setNaIPos", this);
+    m_pNaIPosCmd->SetGuidance("Set NaI X position (center of detector)");
+    m_pNaIPosCmd->AvailableForStates(G4State_PreInit);
+    m_pNaIPosCmd->SetDefaultValue(0);
+    m_pNaIPosCmd->SetDefaultUnit("cm");
 
 }
 
