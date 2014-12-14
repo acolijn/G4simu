@@ -161,7 +161,7 @@ AnalysisManager::EndOfEvent(const G4Event *pEvent)
     m_pEventData->m_fPrimaryW = pEvent->GetPrimaryVertex()->GetWeight();
     
     
-    // uppack teh hit collections
+    // unpack the hit collections
     G4int    iNbHits = 0;
     G4int    iNbSteps = 0;
     G4double fTotalEnergyDeposited = 0;
@@ -178,7 +178,7 @@ AnalysisManager::EndOfEvent(const G4Event *pEvent)
                 pHitsCollection = static_cast<stdHitsCollection*>(pHCofThisEvent->GetHC(m_CollectionIDs[icol]));
                 // the number of hits
                 iNbHits = (pHitsCollection)?(pHitsCollection->entries()):(0);
-                G4cout << icol << " Nb hits = " << iNbHits<< " ID = "<<m_CollectionIDs[icol]<<G4endl;
+                //G4cout << icol << " Nb hits = " << iNbHits<< " ID = "<<m_CollectionIDs[icol]<<G4endl;
                 
                 if(iNbHits) {
                     // hits
