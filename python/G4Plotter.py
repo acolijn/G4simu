@@ -86,7 +86,46 @@ def plotNeutron(fname, material, savefig):
        fig = plt.gcf()
        pname = material + "_neutron.pdf"
        fig.savefig(pname, bbox_extra_artists=(lgd,), bbox_inches='tight')
+#-----------------------------------------------------------------------------------------------------------------------
+def plotNeutronElement(fname, material, savefig):
+    #
+    # Input
+    #       fname    = GEANT4 output file
+    #       element  = Element name
+    #
+    f = TFile(fname)
+    # get the data from 1D histograms
+    E,inelastic = TH1Farray(f.FindObjectAny("_el_"+material+"_neutron_inelastic"))
+    _,elastic   = TH1Farray(f.FindObjectAny("_el_"+material+"_neutron_elastic"))
+    _,capture   = TH1Farray(f.FindObjectAny("_el_"+material+"_neutron_capture"))
+    _,fission   = TH1Farray(f.FindObjectAny("_el_"+material+"_neutron_capture"))
 
+    # plot histogram
+
+    p=plt.semilogy(E,inelastic,color='red',linestyle='--')
+    fig = plt.gcf()
+    fig.set_size_inches(10, 5)
+    plt.semilogy(E,elastic,color='blue',linestyle='-.')
+    plt.semilogy(E,capture,color='green',linestyle='-.')
+    plt.semilogy(E,fission,color='purple',linestyle='-.')
+
+    plt.semilogy(E,inelastic+elastic+capture+fission,color='black')
+    # title of plot
+    plt.title("Material = "+material+". Hadronic model = "+f.FindObjectAny("HADmodel").GetTitle(),fontsize=14)
+    # set axis ranges
+    ax = plt.gca()
+    ax.set_xlim([-8,1.])
+    #ax.set_ylim([1e-4,5e4])
+    # set axis title
+    ax.set_xlabel('$^{10} \\log (E/MeV)$',fontsize=16)
+    ax.set_ylabel('$\\mu (cm^{-1})$',fontsize=16)
+    #
+    lgd = plt.legend((["Inelastic scatter","Elastic scatter","Capture","Fission","Total"]), bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+
+    if savefig:
+       fig = plt.gcf()
+       pname = material + "_neutron.pdf"
+       fig.savefig(pname, bbox_extra_artists=(lgd,), bbox_inches='tight')
 #-----------------------------------------------------------------------------------------------------------------------
 def getMaterials(fname):
     f = TFile(fname)
@@ -102,5 +141,20 @@ def getMaterials(fname):
             for i in range(1,len(mname)-1):
                 mat = mat + '_' + mname[i]
             materials.append(mat)
+
+    return list(set(materials))
+#-----------------------------------------------------------------------------------------------------------------------
+def getElements(fname):
+    f = TFile(fname)
+    gdir = f.GetDirectory("physics/hadronic")
+    materials = []
+    for key in gdir.GetListOfKeys():
+        parname = key.GetName()
+        obj = gdir.FindObjectAny(parname)
+        if 'TH1F' in str(obj):
+            hname = obj.GetName()
+            mname = str.split(hname,'_')
+            if mname[1] == "el":
+                materials.append(mname[2])
 
     return list(set(materials))
