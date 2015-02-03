@@ -59,8 +59,7 @@ private:
     
     // Collimator setup
     G4LogicalVolume *m_pNaI_crystal_LogicalVolume;
-    G4LogicalVolume *m_pPbBlock_LogicalVolume;
-    G4LogicalVolume *m_pCollimatorHole_LogicalVolume;
+    G4LogicalVolume *m_pCollimator_LogicalVolume; 
     
     // Cryostat + TPC
     G4LogicalVolume *m_pOuterCryostat_LogicalVolume;
@@ -81,8 +80,7 @@ private:
 
     // Collimator setup
     G4VPhysicalVolume *m_pNaI_crystal_PhysicalVolume;
-    G4VPhysicalVolume *m_pPbBlock_PhysicalVolume;
-    G4VPhysicalVolume *m_pCollimatorHole_PhysicalVolume;
+    G4VPhysicalVolume *	m_pCollimator_PhysicalVolume; 
     
     // Cryostat + TPC
     G4VPhysicalVolume *m_pOuterCryostat_PhysicalVolume;

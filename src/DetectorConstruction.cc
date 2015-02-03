@@ -526,42 +526,35 @@ DetectorConstruction::ConstructCollimatorSystem()
     m_pSourceCore_PhysicalVolume 	 = new G4PVPlacement(pRot, G4ThreeVector(0,0,0), m_pSourceCore_LogicalVolume,
                                                      "SourceCore", m_pSourceDisk_LogicalVolume, false, 0);
 
-    // ==== Lead block ====
-   G4Box *pPbBlock					= new G4Box("LeadBlock",
-    											dCollimatorX*0.5,
+    // ==== Collimating lead block ====
+    G4Box *pPbBlock					= new G4Box("LeadBlock",
+    											dCollimatorZ*0.5,
     											dCollimatorY*0.5,
-    											dCollimatorZ*0.5);
-    m_pPbBlock_LogicalVolume		= new G4LogicalVolume(pPbBlock, Pb, "Pb_Block", 0, 0, 0);
-    //place with respect to mother volume
-    m_pPbBlock_PhysicalVolume 		= new G4PVPlacement(0, G4ThreeVector(m_hNaIPosition-40,0,0), m_pPbBlock_LogicalVolume,
-    										"LeadBlock", m_pMotherLogicalVolume, false, 0);
-
-    // ==== Collimator hole in Lead block ====
-    G4Tubs *pCollimatorHole			= new G4Tubs("CollimatorHole",
-    											0,
-    											dCollimatorR/2,
-    											dCollimatorX/2,
-    											0. *deg, 360.*deg);
-    m_pCollimatorHole_LogicalVolume		= new G4LogicalVolume(pCollimatorHole, Air, "Collimator_hole", 0, 0, 0);
-    //place with respect to lead block
-    m_pCollimatorHole_PhysicalVolume 	= new G4PVPlacement(pRot, G4ThreeVector(0,0,0), m_pCollimatorHole_LogicalVolume,
-        										"CollimatorHole", m_pPbBlock_LogicalVolume, false, 0);
-
-
+    											dCollimatorX*0.5);
+   
+    G4Tubs *pCollimatorHole         =  new G4Tubs("CollimatorHole",
+                                                  0,
+                                                  dCollimatorR/2,
+                                                  dCollimatorX/2,
+                                                  0. *deg, 360.*deg);
     
+    G4SubtractionSolid *pCollimator            = new G4SubtractionSolid("LeadBlock-CollimatorHole",
+                                                                         pPbBlock,
+                                                                         pCollimatorHole);
+
+    m_pCollimator_LogicalVolume 		= new G4LogicalVolume(pCollimator, Pb, "Collimator", 0,0,0);
+    m_pCollimator_PhysicalVolume 		= new G4PVPlacement(pRot, G4ThreeVector(m_hNaIPosition-40,0,0), 									m_pCollimator_LogicalVolume,
+    									"LeadBlock", m_pMotherLogicalVolume, false, 0);
+    
+
     // visibility
-    G4Colour hTitaniumColor(0.600, 0.600, 0.600, 0.2);
+    G4Colour hTitaniumColor(0.600, 0.600, 0.600, 0.4);
     G4VisAttributes *pTitaniumVisAtt = new G4VisAttributes(hTitaniumColor);
     pTitaniumVisAtt->SetVisibility(true);
     m_pNaI_crystal_LogicalVolume->SetVisAttributes(pTitaniumVisAtt);
-    m_pSourceDisk_LogicalVolume->SetVisAttributes(pTitaniumVisAtt);
-    m_pPbBlock_LogicalVolume ->SetVisAttributes(pTitaniumVisAtt);
+    m_pSourceDisk_LogicalVolume -> SetVisAttributes(pTitaniumVisAtt);
+    m_pCollimator_LogicalVolume -> SetVisAttributes(pTitaniumVisAtt);
 
-    G4Colour hBlack(1., 1., 1., 0.2);
-    G4VisAttributes *pBlack = new G4VisAttributes(hBlack);
-    pBlack->SetVisibility(true);
-    m_pCollimatorHole_LogicalVolume->SetVisAttributes(G4VisAttributes::Invisible);
-    m_pCollimatorHole_LogicalVolume->SetVisAttributes(pBlack);
 }
 
 
