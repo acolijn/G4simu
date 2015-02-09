@@ -2,22 +2,28 @@
 # of the B1 example when running in interactive mode
 #
 
-# Use these open statements to open selected visualization
+## Use these open statements to open selected visualization
 #
-# Use this open statement to create an OpenGL view:
+## Use this open statement to create an OpenGL view:
 #/vis/open OGLIX 600x600-0+0
+## Use this open statement to create an VRML view:
 /vis/open VRML2FILE
 #
-# trajectories are established:
+## trajectories are established. Autorefresh is disabled, vis messages quietened
 /vis/viewer/set/autoRefresh false
 /vis/verbose errors
 #
-# Draw geometry:
+## Draw geometry:
 /vis/drawVolume
 #
-# Specify view angle:
-/vis/viewer/set/viewpointVector -1 0 0
+## Specify view angle:
+#/vis/viewer/set/viewpointVector -1 0 0
+/vis/viewer/set/viewpointThetaPhi 20. 180.
 /vis/viewer/set/lightsVector -1 0 0
+
+
+
+
 #
 # Specify style (surface, wireframe, auxiliary edges,...)
 /vis/viewer/set/style wireframe
@@ -66,12 +72,12 @@
 /vis/set/textColour    # Revert to default text colour (blue)
 #
 # Axes, scale, etc.
-/vis/scene/add/scale   # Simple scale line
+#/vis/scene/add/scale   # Simple scale line
 /vis/scene/add/axes    # Simple axes: x=red, y=green, z=blue.
 /vis/scene/add/eventID # Drawn at end of event
-/vis/scene/add/date    # Date stamp
-/vis/scene/add/logo2D  # Simple logo
-/vis/scene/add/logo    # 3D logo
+#/vis/scene/add/date    # Date stamp
+#/vis/scene/add/logo2D  # Simple logo
+#/vis/scene/add/logo    # 3D logo
 #
 # Frame
 /vis/set/colour red

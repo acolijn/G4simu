@@ -115,6 +115,8 @@ DetectorConstruction::DefineMaterials()
     G4Element *Na = pNistManager->FindOrBuildElement("Na");
     G4Element *I  = pNistManager->FindOrBuildElement("I");
     
+    // Define Lead for collimator block
+    //G4Element *Pb = pNistManager->FindOrBuildElement("Pb");
     
     //================================== materials ==================================
     
@@ -143,7 +145,10 @@ DetectorConstruction::DefineMaterials()
     PE->AddElement(C, 2);
     PE->AddElement(H, 4);
     
+    //------------------------------------ lead --------------------------------------
+    G4Material *Pb = pNistManager->FindOrBuildMaterial("G4_Pb");
     
+
     //------------------------------------ copper -----------------------------------
     //	G4Material *Copper = new G4Material("Copper", 8.92*g/cm3, 1);
     //	Copper->AddElement(Cu, 1);
@@ -154,6 +159,7 @@ DetectorConstruction::DefineMaterials()
     
     //	pCopperPropertiesTable->AddProperty("REFLECTIVITY", pdCopperPhotonMomentum, pdCopperReflectivity, iNbEntries);
     //	Copper->SetMaterialPropertiesTable(pCopperPropertiesTable);
+
     //-------------------------------- liquid xenon ---------------------------------
     G4Material *LXe = new G4Material("LXe", 2.85*g/cm3, 1, kStateLiquid, 168.15*kelvin, 1.5*atmosphere);
     LXe->AddElement(Xe, 1);
@@ -289,18 +295,29 @@ DetectorConstruction::DefineGeometryParameters()
     m_hGeometryParameters["SourceDisk_Z"] = 5.0*mm;
     // little sphere in middle of disk
     m_hGeometryParameters["SourceCore_R"] = 1.0*mm;
+
+    //================================== Collimator ==============================
+    // lead block
+    m_hGeometryParameters["Collimator_x"] = 49*mm;
+    m_hGeometryParameters["Collimator_y"] = 100*mm;
+    m_hGeometryParameters["Collimator_z"] = 100*mm;
+    // collimating hole
+    m_hGeometryParameters["Collimator_R"] = 7.1*mm;
     
+
     //================================== XAMS detector ==============================
     m_hGeometryParameters["OuterCryostat_Rout"] = 125*mm;
-    m_hGeometryParameters["OuterCryostat_dZ"] = 250*mm;
+    m_hGeometryParameters["OuterCryostat_dZ"] = 450*mm; // 450/2 measured from 1:1 drawing in lab
     m_hGeometryParameters["OuterCryostat_Thickness"] = 3.*mm;
     //============
     m_hGeometryParameters["InnerCryostat_Rout"] = 73.97*mm;
-    m_hGeometryParameters["InnerCryostat_dZ"] = 200*mm;
+    m_hGeometryParameters["InnerCryostat_dZ"] = 301*mm; //301/2
     m_hGeometryParameters["InnerCryostat_Thickness"] = 3.*mm;
     //============
     m_hGeometryParameters["Teflon_Rout"] = 68.49*mm;
     m_hGeometryParameters["Teflon_Thickness"] = 46.16*mm;
+
+
 }
 
 G4double
@@ -324,6 +341,17 @@ DetectorConstruction::ConstructLaboratory()
     m_pMotherLogicalVolume = m_pLabLogicalVolume;
     
     m_pLabLogicalVolume->SetVisAttributes(G4VisAttributes::Invisible);
+
+   /* G4Colour hwhite (1.0, 1.0, 1.0, 0.2);
+        G4VisAttributes *pwhiteVisAtt = new G4VisAttributes(hwhite);
+        pwhiteVisAtt->SetVisibility(true);
+        m_pLabLogicalVolume->SetVisAttributes(pwhiteVisAtt);
+        //m_pLabPhysicalVolume->SetVisAttributes(pwhiteVisAtt);
+
+         */
+
+
+
 }
 
 void
@@ -341,6 +369,7 @@ DetectorConstruction::ConstructSD()
     G4VSensitiveDetector* NaI_SD = new SensitiveDetector(SDname="/NaI");
     SDman->AddNewDetector(NaI_SD);
     m_pNaI_crystal_LogicalVolume->SetSensitiveDetector(NaI_SD);
+
 }
 
 void
@@ -352,59 +381,77 @@ DetectorConstruction::ConstructXAMS()
     G4Material *Teflon = G4Material::GetMaterial("Teflon");
     G4Material *Vacuum = G4Material::GetMaterial("Vacuum");
     
-    //================================== NaI crystal =================================
+    //================================== XAMS =================================
     
     //    const G4double dLXeRadius =     GetGeometryParameter("LXe_R");
     //    const G4double dLXeHalfZ  = 0.5*GetGeometryParameter("LXe_Z");
     
-    
-    G4double zmax = 400*mm;
+    //dZ outer cryostat
+    G4double zmax = 450*mm;
     
     // make and place outer cryostat
-    G4Tubs *pOuterCryostat_TUBS = new G4Tubs("OuterCryostatTUBS", 0.*cm,
-                                             GetGeometryParameter("OuterCryostat_Rout"),zmax/2., 0.*deg, 360.*deg);
+    G4Tubs *pOuterCryostat_TUBS = new G4Tubs("OuterCryostatTUBS",
+    										 0.*cm,
+                                             GetGeometryParameter("OuterCryostat_Rout"),
+                                             zmax/2.,
+                                             0.*deg,
+                                             360.*deg);
     m_pOuterCryostat_LogicalVolume  = new G4LogicalVolume(pOuterCryostat_TUBS, SS304, "OuterCryostat", 0, 0, 0);
-    m_pOuterCryostat_PhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0), m_pOuterCryostat_LogicalVolume,
+    m_pOuterCryostat_PhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,22.5), m_pOuterCryostat_LogicalVolume,
                                                         "OuterCryostat", m_pMotherLogicalVolume, false, 0);
     // make and place the insulation vacuum
-    G4Tubs *pVacuum_TUBS = new G4Tubs("VacuumTUBS", 0.*cm,
+    G4Tubs *pVacuum_TUBS = new G4Tubs("VacuumTUBS",
+    								 0.*cm,
                                       GetGeometryParameter("OuterCryostat_Rout")-GetGeometryParameter("OuterCryostat_Thickness"),
-                                      zmax/2. - 1.0*mm, 0.*deg, 360.*deg);
+                                      zmax/2. - 1.0*mm,
+                                      0.*deg,
+                                      360.*deg);
     m_pVacuum_LogicalVolume  = new G4LogicalVolume(pVacuum_TUBS, Vacuum, "Vacuum", 0, 0, 0);
     m_pVacuum_PhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0), m_pVacuum_LogicalVolume,
                                                  "Vacuum", m_pOuterCryostat_LogicalVolume, false, 0);
     m_pVacuum_LogicalVolume->SetVisAttributes(G4VisAttributes::Invisible);
     
     // make and place the inner cryostat
-    G4Tubs *pInnerCryostat_TUBS = new G4Tubs("InnerCryostatTUBS", 0.*cm,
+    G4Tubs *pInnerCryostat_TUBS = new G4Tubs("InnerCryostatTUBS",
+    										 0.*cm,
                                              GetGeometryParameter("InnerCryostat_Rout"),
-                                             zmax/2. - 2.0*mm, 0.*deg, 360.*deg);
+                                             zmax/2. - 74.5*mm,
+                                             0.*deg,
+                                             360.*deg);
     m_pInnerCryostat_LogicalVolume  = new G4LogicalVolume(pInnerCryostat_TUBS, SS304, "InnerCryostat", 0, 0, 0);
-    m_pInnerCryostat_PhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0), m_pInnerCryostat_LogicalVolume,
+    m_pInnerCryostat_PhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,-22.2), m_pInnerCryostat_LogicalVolume,
                                                         "InnerCryostat", m_pVacuum_LogicalVolume, false, 0);
     
     // make and place the outer LXe layer
-    G4Tubs *pLXeOut_TUBS = new G4Tubs("pLXeOut_TUBS", 0.*cm,
+    G4Tubs *pLXeOut_TUBS = new G4Tubs("pLXeOut_TUBS",
+    								  0.*cm,
                                       GetGeometryParameter("InnerCryostat_Rout")-GetGeometryParameter("InnerCryostat_Thickness"),
-                                      zmax/2. - 3.0*mm, 0.*deg, 360.*deg);
+                                      zmax/2. - 73.5*mm,
+                                      0.*deg,
+                                      360.*deg);
     m_pLXeOut_LogicalVolume  = new G4LogicalVolume(pLXeOut_TUBS, LXe, "LXeOut", 0, 0, 0);
     m_pLXeOut_PhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0), m_pLXeOut_LogicalVolume,
                                                  "LXeOut", m_pInnerCryostat_LogicalVolume, false, 0);
     
     // make and place the Teflon layer
-    G4Tubs *pTeflon_TUBS = new G4Tubs("pTeflon_TUBS", 0.*cm,
+    G4Tubs *pTeflon_TUBS = new G4Tubs("pTeflon_TUBS",
+    								  0.*cm,
                                       GetGeometryParameter("Teflon_Rout"),
-                                      zmax/2. - 4.0*mm, 0.*deg, 360.*deg);
+                                      zmax/2. - 120.35*mm,
+                                      0.*deg, 360.*deg);
     m_pTeflon_LogicalVolume  = new G4LogicalVolume(pTeflon_TUBS, Teflon, "Teflon", 0, 0, 0);
-    m_pTeflon_PhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0), m_pTeflon_LogicalVolume,
+    m_pTeflon_PhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,-5.35), m_pTeflon_LogicalVolume,
                                                  "Teflon", m_pLXeOut_LogicalVolume, false, 0);
     
     // make and place LXe
-    G4Tubs *pLXe_TUBS     = new G4Tubs("LXe_TUBS", 0.*cm,
+    G4Tubs *pLXe_TUBS     = new G4Tubs("LXe_TUBS",
+    									0.*cm,
                                        GetGeometryParameter("Teflon_Rout")-GetGeometryParameter("Teflon_Thickness"),
-                                       zmax/2-5.*mm, 0.*deg, 360.*deg);
+                                       zmax/2-166.7*mm,
+                                       0.*deg,
+                                       360.*deg);
     m_pLXe_LogicalVolume  = new G4LogicalVolume(pLXe_TUBS, LXe, "LXe_target", 0, 0, 0);
-    m_pLXe_PhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,0), m_pLXe_LogicalVolume,
+    m_pLXe_PhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0,0,-5.35), m_pLXe_LogicalVolume,
                                               "LXe_target", m_pTeflon_LogicalVolume, false, 0);
     
     
@@ -434,42 +481,80 @@ DetectorConstruction::ConstructCollimatorSystem()
     const G4double dCrystalRadius =     GetGeometryParameter("NaI_crystal_R");
     const G4double dCrystalHalfZ  = 0.5*GetGeometryParameter("NaI_crystal_Z");
     
+    //================================== Collimator ==================================
+    // lead block
+    const G4double dCollimatorX = GetGeometryParameter("Collimator_x");
+    const G4double dCollimatorY = GetGeometryParameter("Collimator_y");
+    const G4double dCollimatorZ = GetGeometryParameter("Collimator_z");
+    const G4double dCollimatorR = GetGeometryParameter("Collimator_R");
+
+    //================================== Materials ===================================
     G4Material *NaI = G4Material::GetMaterial("NaI");
-    //    G4Material *Air = G4Material::GetMaterial("G4_AIR");
     G4Material *PE = G4Material::GetMaterial("PE");
+    G4Material *Pb = G4Material::GetMaterial("G4_Pb");
+    G4Material *Air = G4Material::GetMaterial("G4_AIR");
 
     // rotation matrix for the NaI crystal
     G4RotationMatrix *pRot = new G4RotationMatrix();
     pRot->rotateY(90.*deg);
     
+    //================================== Construction =================================
     // make and place one NaI crystal
-    G4Tubs *pNaI_crystal          = new G4Tubs("NaI_crystal1", 0.*cm, dCrystalRadius, dCrystalHalfZ, 0.*deg, 360.*deg);
-    m_pNaI_crystal_LogicalVolume  = new G4LogicalVolume(pNaI_crystal, NaI, "NaI_crystalTUBS", 0, 0, 0);
-    m_pNaI_crystal_PhysicalVolume = new G4PVPlacement(pRot, G4ThreeVector(m_hNaIPosition,0,0), m_pNaI_crystal_LogicalVolume,
+    G4Tubs *pNaI_crystal			= new G4Tubs("NaI_crystal1",
+													0.*cm,
+													dCrystalRadius,
+													dCrystalHalfZ,
+													0.*deg, 360.*deg);
+    m_pNaI_crystal_LogicalVolume	= new G4LogicalVolume(pNaI_crystal, NaI, "NaI_crystalTUBS", 0, 0, 0);
+    m_pNaI_crystal_PhysicalVolume 	= new G4PVPlacement(pRot, G4ThreeVector(m_hNaIPosition,0,0), m_pNaI_crystal_LogicalVolume,
                                                       "NaI_crystal", m_pMotherLogicalVolume, false, 0);
     
     // make and place the source
     G4cout <<"DetectorConstruction::ConstructCollimatorSystem:: Source at "<<m_hSourcePosition/cm<<" cm" <<G4endl;
-    G4Tubs *pSourceDisk          = new G4Tubs("SourceDisk", 0.*cm, GetGeometryParameter("SourceDisk_R"),
-                                              GetGeometryParameter("SourceDisk_Z")/2,
-                                              0.*deg, 360.*deg);
-    m_pSourceDisk_LogicalVolume  = new G4LogicalVolume(pSourceDisk, PE, "SourceDisk", 0, 0, 0);
-    m_pSourceDisk_PhysicalVolume = new G4PVPlacement(pRot, G4ThreeVector(m_hSourcePosition,0,0), m_pSourceDisk_LogicalVolume,
+    G4Tubs *pSourceDisk         	 = new G4Tubs("SourceDisk",
+    											0.*cm,
+    											GetGeometryParameter("SourceDisk_R"),
+    											GetGeometryParameter("SourceDisk_Z")/2,
+    											0.*deg, 360.*deg);
+    m_pSourceDisk_LogicalVolume 	 = new G4LogicalVolume(pSourceDisk, PE, "SourceDisk", 0, 0, 0);
+    m_pSourceDisk_PhysicalVolume	 = new G4PVPlacement(pRot, G4ThreeVector(m_hSourcePosition,0,0), m_pSourceDisk_LogicalVolume,
                                                      "SourceDisk", m_pMotherLogicalVolume, false, 0);
     
-    G4Orb *pSourceCore        = new G4Orb("SourceCore", GetGeometryParameter("SourceCore_R"));
-    m_pSourceCore_LogicalVolume  = new G4LogicalVolume(pSourceCore, PE, "SourceCore", 0, 0, 0);
-    m_pSourceCore_PhysicalVolume = new G4PVPlacement(pRot, G4ThreeVector(0,0,0), m_pSourceCore_LogicalVolume,
+    G4Orb *pSourceCore				 = new G4Orb("SourceCore",
+    										GetGeometryParameter("SourceCore_R"));
+    m_pSourceCore_LogicalVolume 	 = new G4LogicalVolume(pSourceCore, PE, "SourceCore", 0, 0, 0);
+    m_pSourceCore_PhysicalVolume 	 = new G4PVPlacement(pRot, G4ThreeVector(0,0,0), m_pSourceCore_LogicalVolume,
                                                      "SourceCore", m_pSourceDisk_LogicalVolume, false, 0);
+
+    // ==== Collimating lead block ====
+    G4Box *pPbBlock					= new G4Box("LeadBlock",
+    											dCollimatorZ*0.5,
+    											dCollimatorY*0.5,
+    											dCollimatorX*0.5);
+   
+    G4Tubs *pCollimatorHole         =  new G4Tubs("CollimatorHole",
+                                                  0,
+                                                  dCollimatorR/2,
+                                                  dCollimatorX/2,
+                                                  0. *deg, 360.*deg);
     
-    // make and place the Pb collimator
+    G4SubtractionSolid *pCollimator            = new G4SubtractionSolid("LeadBlock-CollimatorHole",
+                                                                         pPbBlock,
+                                                                         pCollimatorHole);
+
+    m_pCollimator_LogicalVolume 		= new G4LogicalVolume(pCollimator, Pb, "Collimator", 0,0,0);
+    m_pCollimator_PhysicalVolume 		= new G4PVPlacement(pRot, G4ThreeVector(m_hNaIPosition-40,0,0), 									m_pCollimator_LogicalVolume,
+    									"LeadBlock", m_pMotherLogicalVolume, false, 0);
     
+
     // visibility
-    G4Colour hTitaniumColor(0.600, 0.600, 0.600, 0.1);
+    G4Colour hTitaniumColor(0.600, 0.600, 0.600, 0.4);
     G4VisAttributes *pTitaniumVisAtt = new G4VisAttributes(hTitaniumColor);
     pTitaniumVisAtt->SetVisibility(true);
     m_pNaI_crystal_LogicalVolume->SetVisAttributes(pTitaniumVisAtt);
-    m_pSourceDisk_LogicalVolume->SetVisAttributes(pTitaniumVisAtt);
+    m_pSourceDisk_LogicalVolume -> SetVisAttributes(pTitaniumVisAtt);
+    m_pCollimator_LogicalVolume -> SetVisAttributes(pTitaniumVisAtt);
+
 }
 
 

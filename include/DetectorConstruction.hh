@@ -53,12 +53,13 @@ private:
     void StoreGeometryParameters();
     
     
-    // LOGICAL VOLUMES
+    // == LOGICAL VOLUMES ==
     G4LogicalVolume *m_pMotherLogicalVolume;
     G4LogicalVolume *m_pLabLogicalVolume;
     
     // Collimator setup
     G4LogicalVolume *m_pNaI_crystal_LogicalVolume;
+    G4LogicalVolume *m_pCollimator_LogicalVolume; 
     
     // Cryostat + TPC
     G4LogicalVolume *m_pOuterCryostat_LogicalVolume;
@@ -72,10 +73,14 @@ private:
     G4LogicalVolume *m_pSourceDisk_LogicalVolume;
     G4LogicalVolume *m_pSourceCore_LogicalVolume;
     
-    // PHYSICAL VOLUMES
+
+
+    // == PHYSICAL VOLUMES ==
     G4VPhysicalVolume *m_pLabPhysicalVolume;
+
     // Collimator setup
     G4VPhysicalVolume *m_pNaI_crystal_PhysicalVolume;
+    G4VPhysicalVolume *	m_pCollimator_PhysicalVolume; 
     
     // Cryostat + TPC
     G4VPhysicalVolume *m_pOuterCryostat_PhysicalVolume;
