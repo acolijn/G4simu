@@ -48,7 +48,11 @@ DetectorMessenger::~DetectorMessenger()
 
 void DetectorMessenger::SetNewValue(G4UIcommand *pUIcommand, G4String hNewValue)
 {
-        // source position
+    // source position
 	if(pUIcommand == m_pSourcePosCmd)
 			m_pDetector->SetSourcePos((m_pSourcePosCmd->GetNewDoubleValue(hNewValue)));
+    
+    // NaI position
+    if(pUIcommand == m_pNaIPosCmd)
+        m_pDetector->SetNaIPos((m_pNaIPosCmd->GetNewDoubleValue(hNewValue)));
 }
