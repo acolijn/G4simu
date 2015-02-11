@@ -32,8 +32,9 @@ public:
     G4VPhysicalVolume* Construct();
     static G4double GetGeometryParameter(const char *szParameter);
     // function needed by DetectorMessenger
-    void SetSourcePos(G4double x)    { m_hSourcePosition = x; }
+    void SetSourcePos(G4double x) { m_hSourcePosition = x; }
     void SetNaIPos(G4double x)    { m_hNaIPosition = x; }
+    void SetCollimatorPos(G4double x)    {m_hCollimatorPosition = x; }
 
     
     
@@ -100,6 +101,7 @@ private:
     DetectorMessenger *m_pDetectorMessenger;
     G4double           m_hSourcePosition;
     G4double           m_hNaIPosition;
+    G4double	       m_hCollimatorPosition;
 
     
     

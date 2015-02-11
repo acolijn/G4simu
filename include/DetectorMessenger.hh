@@ -32,6 +32,7 @@ private:
     
     G4UIcmdWithADoubleAndUnit *m_pSourcePosCmd;
     G4UIcmdWithADoubleAndUnit *m_pNaIPosCmd;
+    G4UIcmdWithADoubleAndUnit *m_pCollimatorPosCmd;
 
 };
 

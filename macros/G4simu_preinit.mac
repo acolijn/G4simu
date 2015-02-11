@@ -14,9 +14,20 @@
 # do we like to have the physics histograms or not?
 /run/physics/setHistograms true
 
-# where to put the source
-/G4simu/detector/setSourcePos 16 cm
-/G4simu/detector/setNaIPos 25 cm
+
+### Position source, NaI and Collimator ###
+
+# Source next to outer vessel (pos. 2) = 13 cm
+# Source in front of lead block (pos. 1) = 17.5 cm
+# NaI at 10cm distance from outer vessel = 24.5 cm
+# Collimator in front of NaI = 20 cm
+
+/G4simu/detector/setSourcePos 17.5 cm 
+/G4simu/detector/setNaIPos 24.5 cm
+/G4simu/detector/setCollimatorPos 20 cm
+
+### End positions ###
+
 
 # format of the output ntuple
 /G4simu/analysis/setTreeType compact

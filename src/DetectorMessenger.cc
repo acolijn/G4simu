@@ -39,6 +39,13 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction *pDetector)
     m_pNaIPosCmd->SetDefaultValue(0);
     m_pNaIPosCmd->SetDefaultUnit("cm");
 
+    m_pCollimatorPosCmd = new G4UIcmdWithADoubleAndUnit("/G4simu/detector/setCollimatorPos", this);
+    m_pCollimatorPosCmd->SetGuidance("Set Collimator X position ");
+    m_pCollimatorPosCmd->AvailableForStates(G4State_PreInit);
+    m_pCollimatorPosCmd->SetDefaultValue(0);
+    m_pCollimatorPosCmd->SetDefaultUnit("cm");
+
+
 }
 
 DetectorMessenger::~DetectorMessenger()
@@ -51,4 +58,15 @@ void DetectorMessenger::SetNewValue(G4UIcommand *pUIcommand, G4String hNewValue)
         // source position
 	if(pUIcommand == m_pSourcePosCmd)
 			m_pDetector->SetSourcePos((m_pSourcePosCmd->GetNewDoubleValue(hNewValue)));
+	
+	// NaI position
+	if(pUIcommand == m_pNaIPosCmd)
+			m_pDetector->SetNaIPos((m_pNaIPosCmd->GetNewDoubleValue(hNewValue)));	
+
+	// Collimator position
+	if(pUIcommand == m_pCollimatorPosCmd)
+			m_pDetector->SetCollimatorPos((m_pCollimatorPosCmd->GetNewDoubleValue(hNewValue)));	
+
+
+
 }

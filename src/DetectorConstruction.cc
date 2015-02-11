@@ -54,9 +54,11 @@ DetectorConstruction::DetectorConstruction(G4String fName)
 {
     m_pDetectorMessenger = new DetectorMessenger(this);
     detRootFile = fName;
-    m_hSourcePosition = 15*cm;
-    m_hNaIPosition = 25*cm;
 
+    // default settings
+    m_hSourcePosition = 17.5*cm; 	
+    m_hNaIPosition = 245*mm;
+    m_hCollimatorPosition = 200*mm ; 
 }
 
 DetectorConstruction::~DetectorConstruction()
@@ -302,8 +304,7 @@ DetectorConstruction::DefineGeometryParameters()
     m_hGeometryParameters["Collimator_y"] = 100*mm;
     m_hGeometryParameters["Collimator_z"] = 100*mm;
     // collimating hole
-    m_hGeometryParameters["Collimator_R"] = 7.1*mm;
-    
+    m_hGeometryParameters["Collimator_R"] = 7.1*mm; //4.0*cm;//7.1*mm;    
 
     //================================== XAMS detector ==============================
     m_hGeometryParameters["OuterCryostat_Rout"] = 125*mm;
@@ -456,7 +457,7 @@ DetectorConstruction::ConstructXAMS()
     
     
     // visibility
-    G4Colour hTitaniumColor(0.600, 0.600, 0.600, 0.1);
+    G4Colour hTitaniumColor(0.600, 0.600, 0.600, 0.3);
     G4VisAttributes *pTitaniumVisAtt = new G4VisAttributes(hTitaniumColor);
     pTitaniumVisAtt->SetVisibility(true);
     m_pOuterCryostat_LogicalVolume->SetVisAttributes(pTitaniumVisAtt);
@@ -487,6 +488,8 @@ DetectorConstruction::ConstructCollimatorSystem()
     const G4double dCollimatorY = GetGeometryParameter("Collimator_y");
     const G4double dCollimatorZ = GetGeometryParameter("Collimator_z");
     const G4double dCollimatorR = GetGeometryParameter("Collimator_R");
+
+    //const G4double dCollimator_pos = GetGeometryParameter("Collimator_pos");
 
     //================================== Materials ===================================
     G4Material *NaI = G4Material::GetMaterial("NaI");
@@ -543,8 +546,13 @@ DetectorConstruction::ConstructCollimatorSystem()
                                                                          pCollimatorHole);
 
     m_pCollimator_LogicalVolume 		= new G4LogicalVolume(pCollimator, Pb, "Collimator", 0,0,0);
-    m_pCollimator_PhysicalVolume 		= new G4PVPlacement(pRot, G4ThreeVector(m_hNaIPosition-40,0,0), 									m_pCollimator_LogicalVolume,
+ //   m_pCollimator_PhysicalVolume 		= new G4PVPlacement(pRot, G4ThreeVector(dCollimator_pos,0,0), 									m_pCollimator_LogicalVolume,
+    								//	"LeadBlock", m_pMotherLogicalVolume, false, 0);
+    m_pCollimator_PhysicalVolume 		= new G4PVPlacement(pRot, G4ThreeVector(m_hCollimatorPosition,0,0), 									m_pCollimator_LogicalVolume,
     									"LeadBlock", m_pMotherLogicalVolume, false, 0);
+
+
+
     
 
     // visibility
@@ -583,7 +591,7 @@ void DetectorConstruction::MakeDetectorPlots()
 
 void DetectorConstruction::StoreGeometryParameters()
 {
-    // TDirectory for storage of teh geometry parameters
+    // TDirectory for storage of the geometry parameters
     TDirectory *_geometry = _detector->mkdir("geometry");
     _geometry->cd();
 
@@ -629,6 +637,14 @@ void DetectorConstruction::StoreGeometryParameters()
     Source_Z->Write();
     TParameter<double> *Source_pos = new TParameter<double>("SourceDisk_Position",m_hSourcePosition/mm);
     Source_pos->Write();
+
+    // Collimator
+    TParameter<double> *Collimator_x = new TParameter<double>("Collimator_Position",m_hCollimatorPosition/mm);
+    Collimator_x->Write();
+    TParameter<double> *Collimator_r = new TParameter<double>("Collimator_Radius",GetGeometryParameter("Collimator_R")/mm);
+    Collimator_r->Write();
+	
+
     
     _fGeom->cd();
 }

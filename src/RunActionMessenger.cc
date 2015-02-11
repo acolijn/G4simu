@@ -28,7 +28,8 @@ m_pRunAction(pRunAction)
 	// set random seed
 	m_pRanSeedCmd = new G4UIcmdWithAnInteger("/run/random/setRandomSeed", this);
 	m_pRanSeedCmd->SetGuidance("Random seed");
-	G4int iDef = 12345;
+	//G4int iDef = 12345;
+	G4int iDef = 12346;
 	m_pRanSeedCmd->SetDefaultValue(iDef);
 
 }
