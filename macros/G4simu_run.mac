@@ -1,5 +1,3 @@
-# Cryostat Gamma from Cobalt
-
 /control/verbose  0
 /run/verbose      0		
 /event/verbose    0
@@ -12,7 +10,11 @@
 /gps/pos/centre  16. 0. 0. cm
 /gps/pos/radius  1 cm
 /gps/pos/confine SourceCore
-# /gps/ang/type   iso
+/gps/ang/type   iso
+#/gps/energy 0. eV
+#/gps/energy 10. MeV
+# /gps/particle e+
+#/gps/particle nu_e
 
 #/gps/pos/type    Point
 #/gps/particle mu-  
