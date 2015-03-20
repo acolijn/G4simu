@@ -3,11 +3,14 @@
 /event/verbose    0
 /tracking/verbose 0
 
-/run/random/setRandomSeed 12345
+#/run/random/setRandomSeed 12345
+/run/random/setRandomSeed 12346
 
 /gps/pos/type    Volume
 /gps/pos/shape   Sphere
-/gps/pos/centre  16. 0. 0. cm
+# /gps/pos/centre 16. 0. 0. cm # Original (AP)
+/gps/pos/centre  17.5 0. 0. cm # pos 1, in front of lead block
+#/gps/pos/centre  13. 0. 0. cm # pos 2, next to outer vessel
 /gps/pos/radius  1 cm
 /gps/pos/confine SourceCore
 /gps/ang/type   iso
